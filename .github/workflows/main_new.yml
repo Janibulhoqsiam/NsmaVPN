@@ -2,6 +2,7 @@ name: Build and Github Release v2
 run-name: Cooking the next version
 
 on:
+  workflow_dispatch:  # manual run from Actions tab
   push:
     tags:
       - 'v*'
