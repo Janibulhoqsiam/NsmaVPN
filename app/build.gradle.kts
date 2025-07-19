@@ -52,16 +52,18 @@ android {
         versionName = "1.0.0"
 
         testInstrumentationRunner = "ir.erfansn.nsmavpn.HiltTestRunner"
-    }
+    }  // <-- here you close defaultConfig block correctly
 
+}  // <-- this closes the android block prematurely!
 
+buildTypes {
+    debug {
+        resValue("string", "web_client_id", "...")
     }
-    buildTypes {
-        debug {
-            // This value isn't secret: https://github.com/cli/oauth/issues/1
-            resValue("string", "web_client_id", "870845865908-4qde8iut5e3j76tmtn54rcthqjh4lcg8.apps.googleusercontent.com")
-        }
-    }
+}
+
+// more android settings (androidResources, buildFeatures, etc.)
+
 
     androidResources {
         generateLocaleConfig = true
