@@ -33,9 +33,6 @@ plugins {
     alias(libs.plugins.gms.oss.licenses)
 }
 
-// Best articles about this:
-// - [https://stefma.medium.com/sourcecompatibility-targetcompatibility-and-jvm-toolchains-in-gradle-explained-d2c17c8cff7c]
-// - [https://developer.android.com/build/jdks#source-compat]
 kotlin {
     jvmToolchain(jvm.versions.toolchain.get().toInt())
 }
@@ -52,29 +49,28 @@ android {
         versionName = "1.0.0"
 
         testInstrumentationRunner = "ir.erfansn.nsmavpn.HiltTestRunner"
-    }  // <-- here you close defaultConfig block correctly
-
-}  // <-- this closes the android block prematurely!
-
-buildTypes {
-    debug {
-        resValue("string", "web_client_id", "...")
     }
-}
 
-// more android settings (androidResources, buildFeatures, etc.)
-
+    buildTypes {
+        debug {
+            // This value isn't secret: https://github.com/cli/oauth/issues/1
+            resValue("string", "web_client_id", "870845865908-4qde8iut5e3j76tmtn54rcthqjh4lcg8.apps.googleusercontent.com")
+        }
+    }
 
     androidResources {
         generateLocaleConfig = true
     }
+
     buildFeatures {
         compose = true
         buildConfig = true
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.composeCompilerVersion.get()
     }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1,DEPENDENCIES,INDEX.LIST}"
@@ -82,9 +78,11 @@ buildTypes {
             excludes += "DebugProbesKt.bin"
         }
     }
+
     kotlinOptions {
         freeCompilerArgs += "-Xcontext-receivers"
     }
+
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
@@ -101,10 +99,12 @@ baselineProfile {
 androidComponents {
     registerSourceType("proto")
 
-    // Temporarily solution about problem with generated classes of Protobuf [https://github.com/google/ksp/issues/1590]
+    // Temporary fix for protobuf generated classes problem
     onVariants { variant ->
         afterEvaluate {
-            val capName = variant.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+            val capName = variant.name.replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+            }
             tasks.named<KotlinCompile>("ksp${capName}Kotlin") {
                 setSource(tasks.getByName("generate${capName}Proto").outputs)
             }
@@ -117,9 +117,6 @@ protobuf {
         artifact = libs.protobuf.compiler.get().toString()
     }
 
-    // Generates the java Protobuf-lite code for the Protobufs in this project. See
-    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
-    // for more information.
     generateProtoTasks {
         all().forEach { task ->
             task.builtins {
